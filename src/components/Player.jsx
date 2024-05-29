@@ -2,52 +2,67 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaPlay, FaPause, FaStepBackward, FaStepForward } from "react-icons/fa";
 
 const MP3Player = () => {
-
-    const songRef = useRef(null)
-    const [music, setMusic] = useState([])
-    const [currentSongIndex, setCurrentSongIndex] = useState(0)
-    const [isPlaying, setIsPlaying] = useState(false)
+    const songRef = useRef();
+    const [music, setMusic] = useState([]);
+    const [currentSong, setCurrentSong] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     // FETCH AUDIOS
-
     useEffect(() => {
-        songList()
-    }, [])
+        songList();
+    }, []);
 
     const songList = async () => {
-
         try {
-            const resp = await fetch('https://playground.4geeks.com/sound/songs')
-            const data = resp.json()
-            setMusic(await data)
-            console.log(data)
-
+            const resp = await fetch('https://playground.4geeks.com/sound/songs');
+            const data = await resp.json();
+            setMusic(data.songs || []);
+            if (data.songs && data.songs.length > 0) {
+                setCurrentSong(data.songs[0]); // Set the first song as the current song
+            }
         } catch (error) {
-            console.log("error", error)
+            console.log("error", error);
         }
-    }
+    };
+
+    const handleCurrentSong = (mp3) => {
+        setCurrentSong(mp3);
+        setIsPlaying(true);
+    };
 
     // CONTROLS
-    const handlePlayPause = () => {
-        if (isPlaying) {
-            songRef.current.pause()
-        } else {
-            songRef.current.play()
+    const getIndex = () => {
+        return music.findIndex((mp3) => mp3.id === currentSong.id);
+    };
+
+    useEffect(() => {
+        if (currentSong) {
+            songRef.current.src = "https://playground.4geeks.com" + currentSong.url;
+            isPlaying ? songRef.current.play() : songRef.current.pause();
         }
-        setIsPlaying(!isPlaying)
-    }
+    }, [isPlaying, currentSong]);
+
+    const handlePlayPause = () => {
+        setIsPlaying(!isPlaying);
+    };
 
     const handleGoBack = () => {
-        setCurrentSongIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : songs.length - 1))
-    }
+        const newIndex = getIndex() - 1;
+        if (newIndex >= 0) {
+            setCurrentSong(music[newIndex]);
+            setIsPlaying(true);
+        }
+    };
 
     const handleGoFF = () => {
-        setCurrentSongIndex((prevIndex) => (prevIndex < songs.length - 1 ? prevIndex + 1 : 0))
-    }
-
+        const newIndex = getIndex() + 1;
+        if (newIndex < music.length) {
+            setCurrentSong(music[newIndex]);
+            setIsPlaying(true);
+        }
+    };
 
     return (
-
         <div>
             {/* TITLE */}
             <div className="d-flex justify-content-center mx-5">
@@ -62,33 +77,42 @@ const MP3Player = () => {
 
             {/* SONG LIST */}
             <div className="d-flex justify-content-center mx-5">
-                <div className="d-row w-75 bg-dark text-white border-light border">
-                    <div className="m-0 p-4">
-                        <ul className="list-group">
-                            {
-                                music.songs?.map((mp3, index) => <li key={index}>{mp3.name}</li> )
-                            }
-                        </ul>
+                <div className="p-bottom d-row w-75 bg-dark text-white border-light border mx-5">
+                    <div className="m-0">
+                        <div className="list-group list-group-flush">
+                            {music.map((mp3, index) => (
+                                <a
+                                    href="#"
+                                    className={`list-group-item border-light bg-dark text-light playlist-btn ${currentSong && mp3.url === currentSong.url ? "active" : ""}`}
+                                    key={index}
+                                    onClick={() => handleCurrentSong(mp3)}
+                                >
+                                    <span className="px-3">{mp3.id}</span>
+                                    <span>{mp3.name}</span>
+                                </a>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
+            <audio controls hidden ref={songRef} />
 
             {/* NAVBAR FOOTER FIXED */}
             <div className="w-100 fixed-bottom">
                 <div className="bg-dark text-white border-light border p-4 justify-content-center d-flex">
-                    <div className="btnPlayer bg-light rounded-5 p-4 mx-2 text-dark" onClick={handleGoBack}>
+                    <div className="text-light goBtn" onClick={handleGoBack}>
                         <FaStepBackward />
                     </div>
-                    <div className="btnPlayer bg-light rounded-5 p-4 mx-2 text-dark" onClick={handlePlayPause}>
-                        {isPlaying ? <FaPause /> : <FaPlay />}
+                    <div className="bg-light rounded-5 mx-4 text-dark" onClick={handlePlayPause}>
+                        {isPlaying ? <FaPause className="btnPlayer" /> : <FaPlay className="btnPlayer" />}
                     </div>
-                    <div className="btnPlayer bg-light rounded-5 p-4 mx-2 text-dark" onClick={handleGoFF}>
+                    <div className="text-light goBtn" onClick={handleGoFF}>
                         <FaStepForward />
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default MP3Player
+export default MP3Player;
