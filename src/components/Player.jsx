@@ -2,32 +2,30 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaPlay, FaPause, FaStepBackward, FaStepForward } from "react-icons/fa";
 
 const MP3Player = () => {
+
     const songRef = useRef(null)
-    const [songs, setSongs] = useState([])
+    const [music, setMusic] = useState([])
     const [currentSongIndex, setCurrentSongIndex] = useState(0)
     const [isPlaying, setIsPlaying] = useState(false)
 
+    // FETCH AUDIOS
 
     useEffect(() => {
         songList()
     }, [])
 
-    const songList = () => {
-        const url = 'https://playground.4geeks.com/sound/songs'
-        const options = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+    const songList = async () => {
+
+        try {
+            const resp = await fetch('https://playground.4geeks.com/sound/songs')
+            const data = resp.json()
+            setMusic(await data)
+            console.log(data)
+
+        } catch (error) {
+            console.log("error", error)
         }
-
-        fetch(url, options)
-            .then((response) => response.json())
-            .then((datos) => setSongs(datos.songs))
-            .catch((error) => console.log(error.message))
     }
-
-
 
     // CONTROLS
     const handlePlayPause = () => {
@@ -47,7 +45,7 @@ const MP3Player = () => {
         setCurrentSongIndex((prevIndex) => (prevIndex < songs.length - 1 ? prevIndex + 1 : 0))
     }
 
-    
+
     return (
 
         <div>
@@ -67,15 +65,9 @@ const MP3Player = () => {
                 <div className="d-row w-75 bg-dark text-white border-light border">
                     <div className="m-0 p-4">
                         <ul className="list-group">
-                        {
-                    !!songs &&
-                    songs.length > 0 &&
-                    songs.map((song) => {
-                        return (
-                            <li className="list-group-item bg-dark text-white border-light rounded-0" key={song.url}>{song.id}{song.name}</li>
-                        )
-                    })
-                }
+                            {
+                                music.songs?.map((mp3, index) => <li key={index}>{mp3.name}</li> )
+                            }
                         </ul>
                     </div>
                 </div>
