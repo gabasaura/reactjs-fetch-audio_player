@@ -47,19 +47,17 @@ const MP3Player = () => {
     };
 
     const handleGoBack = () => {
-        const newIndex = getIndex() - 1;
-        if (newIndex >= 0) {
-            setCurrentSong(music[newIndex]);
-            setIsPlaying(true);
-        }
+        const currentIndex = getIndex();
+        const newIndex = (currentIndex - 1 + music.length) % music.length; // Loop back to the end if at the beginning
+        setCurrentSong(music[newIndex]);
+        setIsPlaying(true);
     };
 
     const handleGoFF = () => {
-        const newIndex = getIndex() + 1;
-        if (newIndex < music.length) {
-            setCurrentSong(music[newIndex]);
-            setIsPlaying(true);
-        }
+        const currentIndex = getIndex();
+        const newIndex = (currentIndex + 1) % music.length; // Loop back to the start if at the end
+        setCurrentSong(music[newIndex]);
+        setIsPlaying(true);
     };
 
     return (
@@ -83,7 +81,7 @@ const MP3Player = () => {
                             {music.map((mp3, index) => (
                                 <a
                                     href="#"
-                                    className={`list-group-item border-light bg-dark text-light playlist-btn ${currentSong && mp3.url === currentSong.url ? "active" : ""}`}
+                                    className={`list-group-item border-light bg-dark text-light playlist-btn ${currentSong && mp3.url === currentSong.url && isPlaying ? "active" : ""}`}
                                     key={index}
                                     onClick={() => handleCurrentSong(mp3)}
                                 >
