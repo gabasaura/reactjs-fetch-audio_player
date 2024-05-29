@@ -18,7 +18,7 @@ const MP3Player = () => {
             const data = await resp.json();
             setMusic(data.songs || []);
             if (data.songs && data.songs.length > 0) {
-                setCurrentSong(data.songs[0]); // Set the first song as the current song
+                setCurrentSong(data.songs[0]); // carga 1 por default
             }
         } catch (error) {
             console.log("error", error);
