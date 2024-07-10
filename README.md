@@ -1,3 +1,3 @@
-# MP3 REACT PLAYER / FETCH API
-#### Mp3 API / for 4geeks Academy
+# MP3 REACT PLAYER
+#### Mp3 API/REST FETCH from 4geeks Academy [🔗](https://playground.4geeks.com/sound/docs)
 [👁️ View](https://gabasaura.github.io/reactjs-fetch-audio_player/)
